@@ -17,12 +17,11 @@ type Tag struct {
 }
 
 func main() {
-	id := 1
-	username := "Admin 1"
-	login(id, username)
+	username, password := "Admin 1", "e00cf25ad42683b3df678c61f42c6bda"
+	login(username, password)
 }
 
-func login(id int, username string) {
+func login(username string, password string) {
 	// Open up our database connection.
 	// I've set up a database on my local machine using phpmyadmin.
 	// The database is called testDb
@@ -35,7 +34,7 @@ func login(id int, username string) {
 	defer db.Close()
 
 	// Execute the query
-	results, err := db.Query("select name, password from users where name = ?", username)
+	results, err := db.Query("select name, password from users where name = ? and password = ?", username, password)
 	if err != nil {
 		panic(err.Error()) // proper error handling instead of panic in your app
 	}
@@ -45,11 +44,13 @@ func login(id int, username string) {
 		// for each row, scan the result into our tag composite object
 		err = results.Scan(&tag.Name, &tag.Password)
 		if err != nil {
-			panic(err.Error()) // proper error handling instead of panic in your app
+			// panic(err.Error()) // proper error handling instead of panic in your app
+			fmt.Println("Incorrect username or password")
+		} else {
+			// and then print out the tag's Name attribute
+			log.Printf(tag.Name, tag.Password)
+			fmt.Println("Login success")
 		}
-		// and then print out the tag's Name attribute
-		log.Printf(tag.Name, tag.Password)
-	}
 
-	fmt.Println("Login Success")
+	}
 }
